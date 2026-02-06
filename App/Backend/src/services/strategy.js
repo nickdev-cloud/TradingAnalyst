@@ -202,6 +202,7 @@ export function computeIndicators(bars, strategy) {
     if (val != null) mas[`ma${p}`] = val;
     if (p === 200) ma200 = val;
   }
+  if (ma200 == null) ma200 = computeMA(bars, 200);
   let trend200 = null;
   if (bars.length >= 200 && ma200 != null) {
     const close = bars[bars.length - 1].c;
