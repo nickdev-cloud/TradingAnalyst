@@ -41,11 +41,6 @@ export function computeEMA(bars, period) {
  */
 export function computeMACD(bars, fast = 12, slow = 26, signalPeriod = 9) {
   if (!bars || bars.length < slow + signalPeriod) return null;
-  const fastEMA = computeEMA(bars, fast);
-  const slowEMA = computeEMA(bars, slow);
-  if (fastEMA == null || slowEMA == null) return null;
-  const macdLine = fastEMA - slowEMA;
-  // Signal line = EMA of MACD. We need MACD series; compute from bar index (last signalPeriod values of MACD).
   const closes = bars.map((b) => b.c);
   const kFast = 2 / (fast + 1);
   const kSlow = 2 / (slow + 1);
@@ -58,6 +53,7 @@ export function computeMACD(bars, fast = 12, slow = 26, signalPeriod = 9) {
     macdValues.push(emaF - emaS);
   }
   if (macdValues.length < signalPeriod) return null;
+  const macdLine = emaF - emaS;
   const kSig = 2 / (signalPeriod + 1);
   let signalLine = macdValues.slice(0, signalPeriod).reduce((s, v) => s + v, 0) / signalPeriod;
   for (let i = signalPeriod; i < macdValues.length; i++) {
