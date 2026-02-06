@@ -61,30 +61,24 @@ export function initDb() {
       scanned_at TEXT DEFAULT (datetime('now'))
     );
   `);
-  try {
-    database.exec('ALTER TABLE candidates ADD COLUMN rsi REAL');
-  } catch (_) {}
-  try {
-    database.exec('ALTER TABLE candidates ADD COLUMN bravo9_signal TEXT');
-  } catch (_) {}
-  try {
-    database.exec('ALTER TABLE candidates ADD COLUMN bravo9 TEXT');
-  } catch (_) {}
-  try {
-    database.exec('ALTER TABLE candidates ADD COLUMN current_price REAL');
-  } catch (_) {}
-  try {
-    database.exec('ALTER TABLE candidates ADD COLUMN trend_signal TEXT');
-  } catch (_) {}
-  try {
-    database.exec('ALTER TABLE candidates ADD COLUMN trend_200 TEXT');
-  } catch (_) {}
-  try {
-    database.exec('ALTER TABLE candidates ADD COLUMN macd_signal TEXT');
-  } catch (_) {}
-  try {
-    database.exec('ALTER TABLE candidates ADD COLUMN momentum_prediction TEXT');
-  } catch (_) {}
+  const existingCols = new Set(
+    database.prepare('PRAGMA table_info(candidates)').all().map((r) => r.name)
+  );
+  const migrations = [
+    ['rsi', 'REAL'],
+    ['bravo9_signal', 'TEXT'],
+    ['bravo9', 'TEXT'],
+    ['current_price', 'REAL'],
+    ['trend_signal', 'TEXT'],
+    ['trend_200', 'TEXT'],
+    ['macd_signal', 'TEXT'],
+    ['momentum_prediction', 'TEXT'],
+  ];
+  for (const [col, type] of migrations) {
+    if (!existingCols.has(col)) {
+      database.exec(`ALTER TABLE candidates ADD COLUMN ${col} ${type}`);
+    }
+  }
   // Clear trades on startup so the app only shows trades from this session
   database.prepare('DELETE FROM trades').run();
   return database;

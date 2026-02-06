@@ -268,7 +268,6 @@ export async function searchAssets(q) {
   const lower = query.toLowerCase();
   const matches = all.filter(
     (a) =>
-      a.symbol.toLowerCase().startsWith(lower) ||
       a.symbol.toLowerCase().includes(lower) ||
       (a.name && a.name.toLowerCase().includes(lower))
   );

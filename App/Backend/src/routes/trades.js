@@ -23,19 +23,25 @@ tradesRouter.get('/stats', (req, res) => {
   try {
     const db = getDb();
     const rows = db.prepare('SELECT * FROM trades WHERE pnl IS NOT NULL').all();
-    const wins = rows.filter((r) => r.pnl > 0).length;
-    const losses = rows.filter((r) => r.pnl < 0).length;
-    const totalPnl = rows.reduce((s, r) => s + (r.pnl || 0), 0);
-    const avgWin = wins ? rows.filter((r) => r.pnl > 0).reduce((s, r) => s + r.pnl, 0) / wins : 0;
-    const avgLoss = losses ? rows.filter((r) => r.pnl < 0).reduce((s, r) => s + r.pnl, 0) / losses : 0;
+    let wins = 0;
+    let losses = 0;
+    let totalPnl = 0;
+    let winSum = 0;
+    let lossSum = 0;
+    for (const r of rows) {
+      const pnl = r.pnl || 0;
+      totalPnl += pnl;
+      if (r.pnl > 0) { wins++; winSum += r.pnl; }
+      else if (r.pnl < 0) { losses++; lossSum += r.pnl; }
+    }
     res.json({
       totalTrades: rows.length,
       wins,
       losses,
       winRate: rows.length ? (wins / rows.length) * 100 : 0,
       totalPnl,
-      avgWin,
-      avgLoss,
+      avgWin: wins ? winSum / wins : 0,
+      avgLoss: losses ? lossSum / losses : 0,
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
