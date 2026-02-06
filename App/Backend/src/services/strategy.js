@@ -47,6 +47,9 @@ export function computeMACD(bars, fast = 12, slow = 26, signalPeriod = 9) {
   const macdValues = [];
   let emaF = closes.slice(0, fast).reduce((s, c) => s + c, 0) / fast;
   let emaS = closes.slice(0, slow).reduce((s, c) => s + c, 0) / slow;
+  for (let i = fast; i < slow; i++) {
+    emaF = closes[i] * kFast + emaF * (1 - kFast);
+  }
   for (let i = slow; i < closes.length; i++) {
     emaF = closes[i] * kFast + emaF * (1 - kFast);
     emaS = closes[i] * kSlow + emaS * (1 - kSlow);
