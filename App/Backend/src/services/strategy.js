@@ -111,7 +111,8 @@ export function computeBarsSinceEma9Cross(bars) {
  */
 export function computeBravo9(bars) {
   if (!bars || bars.length < 180) return null;
-  const ema9 = computeEMA(bars, 9);
+  const ema9Series = computeEMA9Series(bars);
+  const ema9 = ema9Series.length > 0 ? ema9Series[ema9Series.length - 1] : null;
   const ema20 = computeEMA(bars, 20);
   const sma180 = computeMA(bars, 180);
   if (ema9 == null || ema20 == null || sma180 == null) return null;
@@ -122,7 +123,18 @@ export function computeBravo9(bars) {
   let signal = aboveEma9 ? 'bullish' : 'bearish';
   if (strongBullish) signal = 'strong_bullish';
   if (strongBearish) signal = 'strong_bearish';
-  const barsSinceEma9Cross = computeBarsSinceEma9Cross(bars);
+  let barsSinceEma9Cross = null;
+  if (bars.length >= 10) {
+    let lastCrossBarIndex = null;
+    for (let i = 9; i < bars.length; i++) {
+      const prevDiff = bars[i - 1].c - ema9Series[i - 1];
+      const currDiff = bars[i].c - ema9Series[i];
+      if (prevDiff !== 0 && currDiff !== 0 && (prevDiff > 0) !== (currDiff > 0)) {
+        lastCrossBarIndex = i;
+      }
+    }
+    if (lastCrossBarIndex != null) barsSinceEma9Cross = bars.length - 1 - lastCrossBarIndex;
+  }
   return {
     ema9,
     ema20,
@@ -182,12 +194,25 @@ export function computeRSI(bars, period = 14) {
  */
 export function computeIndicators(bars, strategy) {
   if (!bars || bars.length === 0) return null;
+  const maPeriods = strategy.maPeriods || [20, 50, 200];
   const mas = {};
-  for (const p of strategy.maPeriods || [20, 50, 200]) {
+  let ma200 = null;
+  for (const p of maPeriods) {
     const val = computeMA(bars, p);
     if (val != null) mas[`ma${p}`] = val;
+    if (p === 200) ma200 = val;
   }
-  const trend200 = computeTrendFrom200(bars);
+  if (ma200 == null) ma200 = computeMA(bars, 200);
+  let trend200 = null;
+  if (bars.length >= 200 && ma200 != null) {
+    const close = bars[bars.length - 1].c;
+    trend200 = {
+      ma200,
+      close,
+      above: close > ma200,
+      trend: close > ma200 ? 'bullish' : 'bearish',
+    };
+  }
   const rsiResult = computeRSI(bars, strategy.rsiPeriod ?? 14);
   const macd = computeMACD(bars, 12, 26, 9);
   const bravo9 = computeBravo9(bars);
