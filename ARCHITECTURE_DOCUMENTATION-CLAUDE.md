@@ -481,7 +481,7 @@ graph TB
 
     subgraph "Build & Dev Tools"
         Vite[Vite 5.4]
-        ViteReact[@vitejs/plugin-react]
+        ViteReact["@vitejs/plugin-react"]
     end
 
     subgraph "API Layer"
@@ -1629,18 +1629,22 @@ graph TB
 graph LR
     subgraph "Navigation"
         Nav[Sidebar Navigation]
-        Nav --> D[/ Dashboard]
-        Nav --> S[/settings]
-        Nav --> T[/trades]
+        D["/ Dashboard"]
+        S["/settings"]
+        T["/trades"]
     end
 
-    D --> |Run Scan| Candidates[Candidates Table]
-    D --> |Execute| Modal[Execute Modal]
-    D --> |View Chart| TV[TradingView]
+    Nav --> D
+    Nav --> S
+    Nav --> T
 
-    S --> |Save| API[Backend API]
+    D -->|Run Scan| Candidates[Candidates Table]
+    D -->|Execute| Modal[Execute Modal]
+    D -->|View Chart| TV[TradingView]
 
-    T --> |Load| API
+    S -->|Save| API[Backend API]
+
+    T -->|Load| API
 ```
 
 ### 11.5 State Management
@@ -1650,26 +1654,26 @@ The application uses React's built-in hooks for state management:
 ```mermaid
 graph TB
     subgraph "Dashboard State"
-        candidates[candidates: Candidate[]]
-        trades[trades: Trade[]]
-        loading[loading: boolean]
-        error[error: string | null]
-        scanProgress[scanProgress: Progress | null]
-        indicatorsOnly[indicatorsOnly: Indicator[] | null]
-        executeCandidate[executeCandidate: Candidate | null]
-        sortState[Sort: column, direction]
-        filterState[Filters: symbol, tf, trend, etc.]
+        candidates["candidates: Candidate[]"]
+        trades["trades: Trade[]"]
+        loading["loading: boolean"]
+        error["error: string | null"]
+        scanProgress["scanProgress: Progress | null"]
+        indicatorsOnly["indicatorsOnly: Indicator[] | null"]
+        executeCandidate["executeCandidate: Candidate | null"]
+        sortState["Sort: column, direction"]
+        filterState["Filters: symbol, tf, trend, etc."]
     end
 
     subgraph "Settings State"
-        settings[settings: Settings | null]
-        openaiModels[openaiModels: Model[]]
-        searchResults[searchResults: Asset[]]
+        settings["settings: Settings | null"]
+        openaiModels["openaiModels: Model[]"]
+        searchResults["searchResults: Asset[]"]
     end
 
     subgraph "Trades State"
-        tradesList[trades: Trade[]]
-        stats[stats: Stats | null]
+        tradesList["trades: Trade[]"]
+        stats["stats: Stats | null"]
     end
 ```
 
