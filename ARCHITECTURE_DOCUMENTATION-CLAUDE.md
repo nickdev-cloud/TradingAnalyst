@@ -127,21 +127,25 @@ TradingAnalyst/
 ### 1.7 High-Level Context Diagram
 
 ```mermaid
-C4Context
-    title System Context Diagram - TradingAnalyst
+graph TB
+    subgraph "External Users"
+        Trader["👤 Trader<br/><i>User who monitors markets<br/>and executes paper trades</i>"]
+    end
 
-    Person(trader, "Trader", "User who monitors markets and executes paper trades")
+    subgraph "TradingAnalyst System"
+        App["📊 TradingAnalyst<br/><i>Paper trading POC with<br/>AI-powered analysis</i>"]
+    end
 
-    System(tradingAnalyst, "TradingAnalyst", "Paper trading POC with AI-powered analysis")
+    subgraph "External Services"
+        Alpaca["🏦 Alpaca API<br/><i>Market data and<br/>paper trading execution</i>"]
+        OpenAI["🤖 OpenAI API<br/><i>AI analysis for<br/>trading recommendations</i>"]
+        TradingView["📈 TradingView<br/><i>Charting platform for<br/>visual analysis</i>"]
+    end
 
-    System_Ext(alpaca, "Alpaca API", "Market data and paper trading execution")
-    System_Ext(openai, "OpenAI API", "AI analysis for trading recommendations")
-    System_Ext(tradingview, "TradingView", "Charting platform for visual analysis")
-
-    Rel(trader, tradingAnalyst, "Uses", "HTTP/Browser")
-    Rel(tradingAnalyst, alpaca, "Fetches data, executes trades", "HTTPS/REST")
-    Rel(tradingAnalyst, openai, "Requests analysis", "HTTPS/REST")
-    Rel(trader, tradingview, "Views charts", "HTTPS/Browser")
+    Trader -->|"Uses (HTTP/Browser)"| App
+    App -->|"Fetches data, executes trades (HTTPS/REST)"| Alpaca
+    App -->|"Requests analysis (HTTPS/REST)"| OpenAI
+    Trader -->|"Views charts (HTTPS/Browser)"| TradingView
 ```
 
 ---
@@ -238,23 +242,27 @@ graph TB
 ### 2.2 C4 Container Diagram
 
 ```mermaid
-C4Container
-    title Container Diagram - TradingAnalyst
+graph TB
+    subgraph "Users"
+        Trader["👤 Trader<br/><i>Uses the admin panel</i>"]
+    end
 
-    Person(trader, "Trader", "Uses the admin panel")
+    subgraph "TradingAnalyst Containers"
+        Frontend["🖥️ Frontend SPA<br/><b>React, Vite</b><br/><i>Admin panel for settings,<br/>scanning, and trade management</i>"]
+        Backend["⚙️ Backend API<br/><b>Node.js, Express</b><br/><i>REST API handling business<br/>logic and data access</i>"]
+        SQLite[("🗄️ SQLite Database<br/><b>better-sqlite3</b><br/><i>Stores settings,<br/>candidates, and trades</i>")]
+    end
 
-    Container(frontend, "Frontend SPA", "React, Vite", "Admin panel for settings, scanning, and trade management")
-    Container(backend, "Backend API", "Node.js, Express", "REST API handling business logic and data access")
-    ContainerDb(sqlite, "SQLite Database", "better-sqlite3", "Stores settings, candidates, and trades")
+    subgraph "External Services"
+        Alpaca["🏦 Alpaca API<br/><i>Market data and trading</i>"]
+        OpenAI["🤖 OpenAI API<br/><i>AI analysis</i>"]
+    end
 
-    System_Ext(alpaca, "Alpaca API", "Market data and trading")
-    System_Ext(openai, "OpenAI API", "AI analysis")
-
-    Rel(trader, frontend, "Uses", "HTTPS")
-    Rel(frontend, backend, "Calls API", "HTTP/REST")
-    Rel(backend, sqlite, "Reads/Writes", "SQLite")
-    Rel(backend, alpaca, "Fetches data, trades", "HTTPS")
-    Rel(backend, openai, "Requests analysis", "HTTPS")
+    Trader -->|"Uses (HTTPS)"| Frontend
+    Frontend -->|"Calls API (HTTP/REST)"| Backend
+    Backend -->|"Reads/Writes (SQLite)"| SQLite
+    Backend -->|"Fetches data, trades (HTTPS)"| Alpaca
+    Backend -->|"Requests analysis (HTTPS)"| OpenAI
 ```
 
 ### 2.3 Component Diagram
